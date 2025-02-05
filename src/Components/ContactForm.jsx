@@ -1,7 +1,35 @@
-import React from "react";
+import React, { useRef, useState } from "react"; // Import missing hooks
 import Button from "@mui/material/Button";
+import emailjs from '@emailjs/browser';
 
 const ContactForm = () => {
+  const form = useRef(); // Reference to the form element
+  const [isLoading, setIsLoading] = useState(false); // State for loading status
+  const [messageStatus, setMessageStatus] = useState(''); // State for message status
+
+  const sendEmail = (e) => {
+    e.preventDefault(); // Prevent the default form submission
+    setIsLoading(true); // Set loading state
+    setMessageStatus(''); // Reset the message status
+
+    // Use EmailJS to send the form data
+    emailjs
+      .sendForm('service_1fcb9ht', 'template_8t3gl4s', form.current, {
+        publicKey: 'n-W_fjN0Gt5M1bmgY',
+      })
+      .then(
+        () => {
+          setIsLoading(false);
+          setMessageStatus('Message sent successfully!');
+          form.current.reset(); // Reset the form after successful submission
+        },
+        (error) => {
+          setIsLoading(false);
+          setMessageStatus(`Failed to send: ${error.text}`);
+        }
+      );
+  };
+
   return (
     <div className="flex flex-wrap lg:flex-nowrap bg3 py-10 px-4 md:py-20 md:px-12 lg:py-[120px] lg:px-[10em]">
       {/* Form Section */}
@@ -16,15 +44,15 @@ const ContactForm = () => {
                 Get in touch
               </h2>
             </div>
-            <div id="form-messages"></div>
-            <form id="contact-form">
+            <div id="form-messages">{messageStatus && <p>{messageStatus}</p>}</div>
+            <form ref={form} onSubmit={sendEmail} id="contact-form">
               <div className="flex flex-wrap -mx-2 md:-mx-3">
                 {/* Name Input */}
                 <div className="w-full md:w-1/2 px-2 md:px-3 mb-3">
                   <input
                     className="form-control w-full p-2 md:p-3 border border-gray-300 rounded focus:border-yellow-500"
                     type="text"
-                    id="name"
+                    id="from_name"
                     name="name"
                     placeholder="Name"
                     required
@@ -35,7 +63,7 @@ const ContactForm = () => {
                   <input
                     className="form-control w-full p-2 md:p-3 border border-gray-300 rounded focus:border-yellow-500"
                     type="email"
-                    id="email"
+                    id="from_email"
                     name="email"
                     placeholder="E-Mail"
                     required
@@ -46,28 +74,27 @@ const ContactForm = () => {
                   <input
                     className="form-control w-full p-2 md:p-3 border border-gray-300 rounded focus:border-yellow-500"
                     type="text"
-                    id="phone"
+                    id="from_phone"
                     name="phone"
                     placeholder="Phone Number"
                     required
                   />
                 </div>
-                {/* Website Input */}
+                {/* Product Selection Input */}
                 <div className="w-full md:w-1/2 px-2 md:px-3 mb-3">
                   <select
                     className="form-control w-full p-2 md:p-3 border border-gray-300 rounded focus:border-yellow-500"
-                    id="phone"
-                    name="phone"
-                    placeholder="Select Your Locality"
+                    id="product"
+                    name="product"
                     required
                   >
-                    <option value="">Product Intrested</option>{" "}
-                    <option value="india">Dock Bumper</option>
-                    <option value="europe">Dock Fender</option>
-                    <option value="africa">Wheel Chocker</option>
-                    <option value="nigeria">Rubber Buffer</option>
-                    <option value="netherlands">Cable Protector</option>
-                    <option value="uk">Hose Ramps</option>
+                    <option value="">Select Product Interested</option>
+                    <option value="dock-bumper">Dock Bumper</option>
+                    <option value="dock-fender">Dock Fender</option>
+                    <option value="wheel-chocker">Wheel Chocker</option>
+                    <option value="rubber-buffer">Rubber Buffer</option>
+                    <option value="cable-protector">Cable Protector</option>
+                    <option value="hose-ramps">Hose Ramps</option>
                   </select>
                 </div>
                 {/* Message Textarea */}
@@ -84,9 +111,11 @@ const ContactForm = () => {
               {/* Submit Button */}
               <Button
                 variant="contained"
-                className="!bg-[#ffda31]  !text-black !font-[600] !px-[23px] !py-[17px] h-auto !text-[15px] !shadow-none hover:!bg-black hover:!text-white !rounded-none"
+                className="!bg-[#ffda31] !text-black !font-[600] !px-[23px] !py-[17px] h-auto !text-[15px] !shadow-none hover:!bg-black hover:!text-white !rounded-none"
+                type="submit"
+                disabled={isLoading} // Disable the button while loading
               >
-                Submit Now
+                {isLoading ? "Sending..." : "Submit Now"}
               </Button>
             </form>
           </div>
